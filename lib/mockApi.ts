@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { Provider, Reservation, Schedule } from '../types';
+import { Provider, Reservation, Schedule } from './types';
 
 export const providers: Provider[] = [
   {

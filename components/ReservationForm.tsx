@@ -2,8 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import moment from 'moment';
-import { getProviders, createReservation, unblockExpiredReservations, getReservations } from '../mockApi';
-import { Provider, Reservation } from '../types';
+import { getProviders, createReservation, unblockExpiredReservations, getReservations } from '../lib/mockApi';
+import { Provider, Reservation } from '../lib/types';
+import { Card, CardContent, CardHeader } from './ui/card';
+import { Select, SelectTrigger, SelectContent, SelectItem } from './ui/select';
+import { Input } from './ui/input';
+import { Button } from './ui/button';
 
 const ReservationForm: React.FC = () => {
   const [providers, setProviders] = useState<Provider[]>([]);
@@ -68,21 +72,30 @@ const ReservationForm: React.FC = () => {
   };
 
   return (
-    <div>
-      <h2>Create Reservation</h2>
-      <select onChange={(e) => setSelectedProvider(e.target.value)} value={selectedProvider}>
-        <option value="">Select Provider</option>
-        {providers.map((provider) => (
-          <option key={provider.id} value={provider.id}>
-            {provider.name}
-          </option>
-        ))}
-      </select>
-      <input type="date" onChange={(e) => setSelectedDate(e.target.value)} value={selectedDate} />
-      <input type="time" onChange={(e) => setSelectedTime(e.target.value)} value={selectedTime} />
-      <button onClick={handleReservation}>Reserve</button>
-    </div>
+    <Card>
+      <CardHeader>
+        <h2>Create Reservation</h2>
+      </CardHeader>
+      <CardContent>
+        <Select onValueChange={setSelectedProvider} value={selectedProvider}>
+          <SelectTrigger>
+            <span>Select Provider</span>
+          </SelectTrigger>
+          <SelectContent>
+            {providers.map((provider) => (
+              <SelectItem key={provider.id} value={provider.id}>
+                {provider.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Input type="date" onChange={(e) => setSelectedDate(e.target.value)} value={selectedDate} />
+        <Input type="time" onChange={(e) => setSelectedTime(e.target.value)} value={selectedTime} />
+        <Button onClick={handleReservation}>Reserve</Button>
+      </CardContent>
+    </Card>
   );
 };
 
 export default ReservationForm;
+
