@@ -3,31 +3,55 @@ import React, { useState, useEffect } from 'react';
 import { providers, updateProviderSchedule } from '../lib/mockApi';
 import { Provider, Schedule } from '../lib/types';
 import { getNextWeekdays } from '../lib/utils';
-import { Button } from './ui/button';
 import { Card, CardHeader, CardContent } from './ui/card';
+import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger } from './ui/select';
+import moment from 'moment';
+import { useToast } from './ui/use-toast';
 
-const SetSchedule: React.FC<{ provider: Provider }> = ({ provider }) => {
+const SetSchedule: React.FC = () => {
   const [schedule, setSchedule] = useState<Schedule[]>([]);
-  const [selectedProvider, setSelectedProvider] = useState<Provider | undefined>(provider);
+  const [selectedProvider, setSelectedProvider] = useState<Provider | undefined>(undefined);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (selectedProvider) {
-      const nextWeekdays = getNextWeekdays(5);
-      const existingSchedule = selectedProvider.schedule.reduce((acc, curr) => {
-        acc[curr.date] = curr;
-        return acc;
-      }, {} as { [key: string]: Schedule });
+      const savedSchedule = localStorage.getItem(`schedule-${selectedProvider.id}`);
+      if (savedSchedule && savedSchedule.length > 0) {
+        setSchedule(JSON.parse(savedSchedule));
+      } else {
+        const nextWeekdays = getNextWeekdays(5);
+        const existingSchedule = selectedProvider.schedule.reduce((acc, curr) => {
+          acc[curr.date] = curr;
+          return acc;
+        }, {} as { [key: string]: Schedule });
 
-      const mergedSchedule = nextWeekdays.map(date => existingSchedule[date] || { date, startTime: '', endTime: '' });
-      setSchedule(mergedSchedule);
+        const mergedSchedule = nextWeekdays.map(date => existingSchedule[date] || { date, startTime: '', endTime: '' });
+        setSchedule(mergedSchedule);
+      }
     }
   }, [selectedProvider]);
 
+  useEffect(() => {
+    if (selectedProvider) {
+      localStorage.setItem(`schedule-${selectedProvider.id}`, JSON.stringify(schedule));
+    }
+  }, [schedule, selectedProvider]);
+
   const handleScheduleChange = (index: number, field: string, value: string) => {
     const newSchedule = [...schedule];
-    newSchedule[index] = { ...newSchedule[index], [field]: value };
+    if (field === 'startTime' || field === 'endTime') {
+      newSchedule[index] = { ...newSchedule[index], [field]: moment(value, 'HH:mm').format('HH:mm') };
+    } else {
+      newSchedule[index] = { ...newSchedule[index], [field]: value };
+    }
+    setSchedule(newSchedule);
+  };
+
+  const handleClearTime = (index: number) => {
+    const newSchedule = [...schedule];
+    newSchedule[index] = { ...newSchedule[index], startTime: '', endTime: '' };
     setSchedule(newSchedule);
   };
 
@@ -35,7 +59,10 @@ const SetSchedule: React.FC<{ provider: Provider }> = ({ provider }) => {
     if (selectedProvider) {
       const updatedSchedule = schedule.filter(slot => slot.startTime && slot.endTime);
       updateProviderSchedule(selectedProvider.id, updatedSchedule).then(() => {
-        alert('Schedule updated successfully');
+        toast({
+          title: "Success!",
+          description: `Schedule updated for ${selectedProvider.name}`,
+        })
       });
     }
   };
@@ -63,6 +90,7 @@ const SetSchedule: React.FC<{ provider: Provider }> = ({ provider }) => {
             <Input type="date" value={slot.date} readOnly />
             <Input type="time" value={slot.startTime} onChange={(e) => handleScheduleChange(index, 'startTime', e.target.value)} />
             <Input type="time" value={slot.endTime} onChange={(e) => handleScheduleChange(index, 'endTime', e.target.value)} />
+            <Button onClick={() => handleClearTime(index)}>Clear</Button>
           </div>
         ))}
         <Button onClick={handleSubmit}>Update Schedule</Button>

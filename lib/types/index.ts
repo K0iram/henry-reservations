@@ -23,5 +23,4 @@ export interface Reservation {
   startTime: string;
   endTime: string;
   confirmed: boolean;
-  blockedUntil?: Date; //handles blocking logic
-}
+  blockedUntil?: Date | null; //handles blocking logic

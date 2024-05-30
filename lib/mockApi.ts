@@ -1,21 +1,52 @@
 import moment from 'moment';
 import { Provider, Reservation, Schedule } from './types';
 
+const isBrowser = typeof window !== 'undefined';
+
+const getStoredSchedules = (providerId: string): Schedule[] => {
+  if (!isBrowser) return [];
+  const storedSchedule = localStorage.getItem(`schedule-${providerId}`);
+  return storedSchedule ? JSON.parse(storedSchedule) : [];
+};
+
+const generateDefaultSchedule = (): Schedule[] => {
+  const schedule: Schedule[] = [];
+  const startOfDay = moment().startOf('day').add(9, 'hours'); // 9am
+  const endOfDay = moment().startOf('day').add(17, 'hours'); // 5pm
+
+  let day = moment();
+  let weekdaysAdded = 0;
+
+  while (weekdaysAdded < 5) {
+    if (day.isoWeekday() <= 5) { // Only weekdays
+      schedule.push({
+        date: day.format('YYYY-MM-DD'),
+        startTime: startOfDay.format('HH:mm'),
+        endTime: endOfDay.format('HH:mm'),
+      });
+      weekdaysAdded++;
+    }
+    day = day.add(1, 'days');
+  }
+
+  return schedule;
+};
+
 export const providers: Provider[] = [
   {
     id: '1',
     name: 'Dr. Henry',
-    schedule: [],
+    schedule: getStoredSchedules('1').length ? getStoredSchedules('1') : generateDefaultSchedule(),
   },
   {
     id: '2',
     name: 'Dr. Smith',
-    schedule: [],
+    schedule: getStoredSchedules('2').length ? getStoredSchedules('2') : generateDefaultSchedule(),
   },
   {
     id: '3',
     name: 'Dr. Johnson',
-    schedule: [],
+    schedule: getStoredSchedules('3').length ? getStoredSchedules('3') : generateDefaultSchedule(),
   },
 ];
 
@@ -51,11 +82,27 @@ export const updateProviderSchedule = (providerId: string, schedule: Schedule[])
 };
 
 export const createReservation = (reservation: Reservation): Promise<void> => {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const reservations = getStoredReservations();
-    reservations.push(reservation);
-    saveReservations(reservations);
-    setTimeout(() => resolve(), 1000);
+
+    // Check for overlapping reservations excluding canceled ones
+    const isOverlapping = reservations.some((res) => 
+      res.providerId === reservation.providerId &&
+      res.date === reservation.date &&
+      res.confirmed && // Only consider confirmed reservations
+      (
+        (moment(`${reservation.date} ${res.startTime}`, 'YYYY-MM-DD HH:mm').isBefore(moment(`${reservation.date} ${reservation.endTime}`, 'YYYY-MM-DD HH:mm')) &&
+        moment(`${reservation.date} ${res.endTime}`, 'YYYY-MM-DD HH:mm').isAfter(moment(`${reservation.date} ${reservation.startTime}`, 'YYYY-MM-DD HH:mm')))
+      )
+    );
+
+    if (isOverlapping) {
+      reject(new Error('Selected timeslot is already booked or blocked.'));
+    } else {
+      reservations.push(reservation);
+      saveReservations(reservations);
+      setTimeout(() => resolve(), 1000);
+    }
   });
 };
 
@@ -65,6 +112,19 @@ export const confirmReservation = (reservationId: string): Promise<void> => {
     const reservation = reservations.find((r) => r.id === reservationId);
     if (reservation) {
       reservation.confirmed = true;
+      reservation.blockedUntil = undefined;
+      saveReservations(reservations);
+    }
+    setTimeout(() => resolve(), 1000);
+  });
+};
+
+export const cancelReservation = (reservationId: string): Promise<void> => {
+  return new Promise((resolve) => {
+    const reservations = getStoredReservations();
+    const reservation = reservations.find((r) => r.id === reservationId);
+    if (reservation) {
+      reservation.confirmed = false;
       reservation.blockedUntil = undefined;
       saveReservations(reservations);
     }
