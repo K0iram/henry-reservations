@@ -1,8 +1,18 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Henry Reservations App
 
 ## Getting Started
 
-First, run the development server:
+First, install the dependencies:
+
+```bash
+npm install
+# or
+yarn install
+# or
+pnpm install
+```
+
+Then, run the development server:
 
 ```bash
 npm run dev
@@ -14,21 +24,28 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Mock API
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+The mock API is defined in `lib/mockApi.ts` and provides the following functions:
 
-## Learn More
+### Providers
+* `getProviders()`: Fetches the list of providers.
+* `updateProviderSchedule(providerId, schedule)`: Updates the schedule for a provider.
 
-To learn more about Next.js, take a look at the following resources:
+### Reservations
+* `getReservations()`: Fetches the list of reservations.
+* `createReservation(reservation)`: Creates a new reservation.
+* `confirmReservation(reservationId)`: Confirms a reservation.
+* `cancelReservation(reservationId)`: Cancels a reservation.
+* `unblockExpiredReservations()`: Unblocks reservations that have expired.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Features
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+### Setting Provider Schedules
+To set a provider's schedule, navigate to the Providers page and select a provider from the dropdown. Adjust the schedule as needed and click "Update Schedule".
 
-## Deploy on Vercel
+### Making Reservations
+To make a reservation, navigate to the Clients page. Select a provider, choose a date and time, and click "Reserve". Confirm the reservation within 30 minutes to avoid it being blocked.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+### Viewing Reservations
+Clients can view their reservations on the Clients page. Providers can see their schedules and reservations on the Providers page.
