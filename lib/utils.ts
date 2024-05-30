@@ -58,3 +58,8 @@ export const generateDefaultSchedule = (): Schedule[] => {
 
   return schedule;
 };
+
+export const clearData = (): void => {
+  localStorage.clear();
+  window.location.href = '/';
+};
