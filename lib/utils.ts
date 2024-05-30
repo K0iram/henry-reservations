@@ -24,6 +24,12 @@ export const getNextWeekdays = (count: number): string[] => {
 
 const isBrowser = typeof window !== 'undefined';
 
+export const saveSchedules = (providerId: string, schedule: Schedule[]): void => {
+  if (isBrowser) {
+    localStorage.setItem(`schedule-${providerId}`, JSON.stringify(schedule));
+  }
+};
+
 export const getStoredSchedules = (providerId: string): Schedule[] => {
   if (!isBrowser) return [];
   const storedSchedule = localStorage.getItem(`schedule-${providerId}`);

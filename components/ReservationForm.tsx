@@ -2,26 +2,25 @@
 
 import React, { useState, useEffect } from 'react';
 import moment from 'moment';
-import { getProviders, createReservation, unblockExpiredReservations, getReservations } from '../lib/mockApi';
+import { getProviders, createReservation, unblockExpiredReservations } from '../lib/mockApi';
 import { Provider, Reservation } from '../lib/types';
 import { Card, CardContent, CardHeader } from './ui/card';
 import { Select, SelectTrigger, SelectContent, SelectItem } from './ui/select';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { useToast } from "@/components/ui/use-toast"
-
+import { useReservations } from '../lib/context/ReservationsContext';
 
 const ReservationForm: React.FC = () => {
   const [providers, setProviders] = useState<Provider[]>([]);
   const [selectedProvider, setSelectedProvider] = useState<string>('');
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedTime, setSelectedTime] = useState<string>('');
-  const [reservations, setReservations] = useState<Reservation[]>([]);
+  const { reservations, addReservation } = useReservations();
   const { toast } = useToast()
 
   useEffect(() => {
     getProviders().then(setProviders);
-    getReservations().then(setReservations);
     const interval = setInterval(unblockExpiredReservations, 60000); // Check every minute
     return () => clearInterval(interval);
   }, []);
@@ -42,8 +41,6 @@ const ReservationForm: React.FC = () => {
       blockedUntil: blockedUntil.toDate(), // Block for 30 minutes
     };
 
-    debugger
-
     const clearForm = () => {
       setSelectedProvider('');
       setSelectedDate('');
@@ -58,8 +55,7 @@ const ReservationForm: React.FC = () => {
         const scheduleStartTime = moment(`${selectedDate} ${schedule.startTime}`, 'YYYY-MM-DD HH:mm');
         const scheduleEndTime = moment(`${selectedDate} ${schedule.endTime}`, 'YYYY-MM-DD HH:mm');
 
-        if (startTime.isBetween(scheduleStartTime, scheduleEndTime, undefined, '[)') && endTime.isBetween(scheduleStartTime, scheduleEndTime, undefined, '[)')) {
-          // Check for overbooking
+        if (startTime.isBetween(scheduleStartTime, scheduleEndTime, undefined, '[)') && endTime.isBefore(scheduleEndTime)) {
           const isOverlapping = reservations.some((res) => 
             res.providerId === selectedProvider &&
             res.date === selectedDate &&
@@ -75,7 +71,7 @@ const ReservationForm: React.FC = () => {
                 title: "Success!",
                 description: "Reservation created and blocked for 30 minutes. Please confirm within 30 minutes.",
               })
-              setReservations([...reservations, reservation]);
+              addReservation(reservation); // Add reservation to context
               clearForm();
             });
           } else {
@@ -173,4 +169,3 @@ const ReservationForm: React.FC = () => {
 };
 
 export default ReservationForm;
-

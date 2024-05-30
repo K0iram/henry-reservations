@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { providers, updateProviderSchedule } from '../lib/mockApi';
+import { getProviders, providers, updateProviderSchedule } from '../lib/mockApi';
 import { Provider, Schedule } from '../lib/types';
 import { getNextWeekdays } from '../lib/utils';
 import { Card, CardHeader, CardContent } from './ui/card';
@@ -16,6 +16,7 @@ const SetSchedule: React.FC = () => {
   const { toast } = useToast();
 
   useEffect(() => {
+    getProviders() // fetch providers for default schedule
     if (selectedProvider) {
       const savedSchedule = localStorage.getItem(`schedule-${selectedProvider.id}`);
       if (savedSchedule && savedSchedule.length > 0) {
@@ -32,12 +33,6 @@ const SetSchedule: React.FC = () => {
       }
     }
   }, [selectedProvider]);
-
-  useEffect(() => {
-    if (selectedProvider) {
-      localStorage.setItem(`schedule-${selectedProvider.id}`, JSON.stringify(schedule));
-    }
-  }, [schedule, selectedProvider]);
 
   const handleScheduleChange = (index: number, field: string, value: string) => {
     const newSchedule = [...schedule];

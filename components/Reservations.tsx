@@ -1,45 +1,36 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { getReservations, confirmReservation, unblockExpiredReservations, cancelReservation, providers } from '../lib/mockApi';
-import { Provider, Reservation } from '../lib/types';
+import { confirmReservation, unblockExpiredReservations, cancelReservation, providers } from '../lib/mockApi';
+import { useReservations } from '../lib/context/ReservationsContext';
 import moment from 'moment';
 import { Card, CardContent, CardHeader } from './ui/card';
 import { Table, TableHead, TableRow, TableHeader, TableBody, TableCell } from './ui/table';
 import { Button } from './ui/button';
 import { useToast } from '@/components/ui/use-toast';
+import { Reservation } from '@/lib/types';
 
 const Reservations: React.FC = () => {
-  const [reservations, setReservations] = useState<Reservation[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const { reservations,confirmReservation: confirmReservationContext, cancelReservation: cancelReservationContext, isLoading } = useReservations();
   const { toast } = useToast();
 
   useEffect(() => {
-    setIsLoading(true);
-    getReservations().then(data => {
-      setReservations(data);
-      setIsLoading(false);
-    });
     const interval = setInterval(unblockExpiredReservations, 60000); // Check every minute
     return () => clearInterval(interval);
   }, []);
 
   const handleConfirm = (id: string) => {
     confirmReservation(id).then(() => {
-      setReservations((prev) =>
-        prev.map((res) => (res.id === id ? { ...res, confirmed: true, blockedUntil: undefined } : res))
-      );
+      confirmReservationContext(id);
       toast({
         title: "Success!",
         description: "Reservation confirmed.",
       });
     });
   };
-
+  
   const handleCancel = (id: string) => {
     cancelReservation(id).then(() => {
-      setReservations((prev) =>
-        prev.map((res) => (res.id === id ? { ...res, confirmed: false, blockedUntil: null } : res))
-      );
+      cancelReservationContext(id);
       toast({
         title: "Success!",
         description: "Reservation canceled.",
@@ -64,21 +55,16 @@ const Reservations: React.FC = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading && (
+            {(isLoading) && (
               <TableRow>
                 <TableCell colSpan={5}>Loading...</TableCell>
               </TableRow>
             )}
-            {reservations.map((reservation) => (
+            {reservations.map((reservation: Reservation) => (
               <TableRow key={reservation.id}>
                 <TableCell>{reservation.date}</TableCell>
-                <TableCell>{providers.find((provider) => provider.id === reservation.providerId)?.name}</TableCell>
-                <TableCell>
-                  {reservation.startTime} - {reservation.endTime}
-                  {!reservation.confirmed && reservation.blockedUntil && (
-                    <span> (Blocked until {moment(reservation.blockedUntil).format('HH:mm')})</span>
-                  )}
-                </TableCell>
+                <TableCell>{reservation.startTime} - {reservation.endTime}</TableCell>
+                <TableCell>{providers.find(provider => provider.id === reservation.providerId)?.name}</TableCell>
                 <TableCell>
                   {reservation.confirmed ? 'Confirmed' : reservation.blockedUntil ? 'Pending' : 'Canceled'}
                 </TableCell>

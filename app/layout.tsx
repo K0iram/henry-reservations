@@ -4,6 +4,7 @@ import { Inter as FontSans } from "next/font/google"
 import { cn } from "@/lib/utils"
 import Nav from '@/components/Nav'
 import { Toaster } from '@/components/ui/toaster'
+import { ReservationsProvider } from '@/lib/context/ReservationsContext'
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -30,7 +31,9 @@ export default function RootLayout({
       >
         <Nav />
         <Toaster />
-        {children}
+        <ReservationsProvider>
+          {children}
+        </ReservationsProvider>
       </body>
     </html>
   )

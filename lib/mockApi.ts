@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { Provider, Reservation, Schedule } from './types';
-import { getStoredSchedules, generateDefaultSchedule } from './utils';
+import { getStoredSchedules, generateDefaultSchedule, saveSchedules } from './utils';
 
 export const providers: Provider[] = [
   {
@@ -31,7 +31,18 @@ const saveReservations = (reservations: Reservation[]) => {
 
 export const getProviders = (): Promise<Provider[]> => {
   return new Promise((resolve) => {
-    setTimeout(() => resolve(providers), 1000);
+    console.log('Fetching providers...');
+    setTimeout(() => {
+      providers.forEach(provider => {
+        let schedule = getStoredSchedules(provider.id);
+        if (!schedule.length) {
+          schedule = generateDefaultSchedule();
+          saveSchedules(provider.id, schedule);
+        }
+        provider.schedule = schedule;
+      });
+      resolve(providers);
+    }, 1000);
   });
 };
 
