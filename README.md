@@ -49,3 +49,25 @@ To make a reservation, navigate to the Clients page. Select a provider, choose a
 
 ### Viewing Reservations
 Clients can view their reservations on the Clients page. Providers can see their schedules and reservations on the Providers page.
+
+## Persistence
+
+### Local Storage
+Currently, the app uses local storage to persist data such as provider schedules and reservations. This approach is suitable for development and testing purposes because it is simple to implement and does not require a backend server.
+
+### Limitations
+- **Data Loss**: Data is stored only in the browser, so it will be lost if the user clears their browser data or accesses the app from a different device.
+- **Scalability**: Local storage is not suitable for handling large amounts of data or multiple users.
+
+### Making the App Production-Ready
+To make this app ready for production, consider the following improvements:
+1. **Backend Integration**: Implement a backend server using Node.js, Express, or another framework to handle data persistence. Use a database to store provider schedules and reservations.
+2. **Authentication**: Add user authentication to ensure that only authorized users can make or view reservations.
+3. **User Separation**: Separate the client and provider views so that clients can only view their own reservations and providers can only view their own schedules.
+4. **Error Handling**: Improve error handling throughout the app to provide better feedback to users and handle edge cases gracefully.
+5. **Testing**: Implement comprehensive unit and integration tests to ensure the app's reliability and stability.
+
+## Notes
+- The app assumes that the 'client' is signed in
+- The app allows any provider to update their schedule
+- The app does not have any tests
