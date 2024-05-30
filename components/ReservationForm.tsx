@@ -17,7 +17,7 @@ const ReservationForm: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedTime, setSelectedTime] = useState<string>('');
   const { reservations, addReservation } = useReservations();
-  const { toast } = useToast()
+  const { toast } = useToast();
 
   useEffect(() => {
     getProviders().then(setProviders);
@@ -26,7 +26,7 @@ const ReservationForm: React.FC = () => {
   }, []);
 
   const handleReservation = () => {
-    const startTime = moment(`${selectedDate} ${selectedTime}`, 'YYYY-MM-DD hh:mm A');
+    const startTime = moment(`${selectedDate} ${selectedTime}`, 'YYYY-MM-DD h:mm A');
     const endTime = startTime.clone().add(15, 'minutes');
     const blockedUntil = moment().add(30, 'minutes');
 
@@ -45,7 +45,7 @@ const ReservationForm: React.FC = () => {
       setSelectedProvider('');
       setSelectedDate('');
       setSelectedTime('');
-    }
+    };
 
     // Check if the selected time is within provider's working hours
     const provider = providers.find((p) => p.id === selectedProvider);
@@ -70,7 +70,7 @@ const ReservationForm: React.FC = () => {
               toast({
                 title: "Success!",
                 description: "Reservation created and blocked for 30 minutes. Please confirm within 30 minutes.",
-              })
+              });
               addReservation(reservation); // Add reservation to context
               clearForm();
             });
@@ -79,7 +79,7 @@ const ReservationForm: React.FC = () => {
               title: "Oops!",
               description: "Selected timeslot is already booked or blocked.",
               variant: "destructive" 
-            })
+            });
             clearForm();
           }
         } else {
@@ -87,7 +87,7 @@ const ReservationForm: React.FC = () => {
             title: "Oops!",
             description: "Selected time is outside of provider's working hours.",
             variant: "destructive"
-          })
+          });
           clearForm();
         }
       }
@@ -113,10 +113,16 @@ const ReservationForm: React.FC = () => {
           );
 
           if (!isBooked) {
+            const timeString = currentTime.format('h:mm A');
             timeSlots.push(
-              <SelectItem key={currentTime.format('hh:mm A')} value={currentTime.format('hh:mm A')}>
-                {currentTime.format('hh:mm A')}
-              </SelectItem>
+              <Button 
+                key={timeString} 
+                onClick={() => setSelectedTime(timeString)} 
+                className="m-1"
+                variant={selectedTime === timeString ? 'default' : 'outline'}
+              >
+                {timeString}
+              </Button>
             );
           }
 
@@ -127,12 +133,29 @@ const ReservationForm: React.FC = () => {
       }
     }
     return null;
-  }
+  };
+
+  const getAvailableDates = () => {
+    const provider = providers.find((p) => p.id === selectedProvider);
+    if (provider) {
+      return provider.schedule.map((s) => (
+        <Button 
+          key={s.date} 
+          onClick={() => setSelectedDate(s.date)} 
+          className="m-1"
+          variant={selectedDate === s.date ? 'default' : 'outline'}
+        >
+          {moment(s.date).format('LL')}
+        </Button>
+      ));
+    }
+    return null;
+  };
 
   return (
-    <Card>
+    <Card className="p-4">
       <CardHeader>
-        <h2>Create Reservation</h2>
+        <h2 className="scroll-m-20 border-b pb-2 text-xl font-semibold tracking-tight first:mt-0">Add New Reservation</h2>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <Select onValueChange={setSelectedProvider} value={selectedProvider}>
@@ -147,22 +170,26 @@ const ReservationForm: React.FC = () => {
             ))}
           </SelectContent>
         </Select>
-        <Input 
-          type="date" 
-          onChange={(e) => setSelectedDate(e.target.value)} 
-          value={selectedDate} 
-          min={moment().add(1, 'days').format('YYYY-MM-DD')} // Disable all days up to and including today
-          disabled={!selectedProvider}
-        />
-        <Select onValueChange={setSelectedTime} value={selectedTime} disabled={!selectedProvider || !selectedDate}>
-          <SelectTrigger>
-            <span>{selectedTime || 'Select Time'}</span>
-          </SelectTrigger>
-          <SelectContent>
+        <h4 className="scroll-m-20 text-md font-semibold tracking-tight">Available Dates</h4>
+        <Card className="p-2 overflow-y-auto max-h-20">
+          <CardContent className="flex flex-wrap gap-2 overflow-y-auto max-h-12">
+            {getAvailableDates()}
+          </CardContent>
+        </Card>
+        <h4 className="scroll-m-20 text-md font-semibold tracking-tight">Available Times</h4>
+        <Card className="p-2 overflow-y-auto max-h-20">
+          <CardContent className="flex flex-wrap gap-2 overflow-y-auto max-h-12">
             {getProviderHours()}
-          </SelectContent>
-        </Select>
-        <Button onClick={handleReservation}>Reserve</Button>
+          </CardContent>
+        </Card>
+        {selectedProvider && selectedDate && selectedTime && (
+          <>
+            <span className="text-sm font-medium leading-none">{`Confirm reservation for ${moment(selectedDate).format('LL')} at ${moment(selectedTime, 'HH:mm').format('h:mm A')} with ${providers.find(p => p.id === selectedProvider)?.name}?`}</span>
+            <Button onClick={handleReservation}>
+              Reserve
+            </Button>
+          </>
+        )}
       </CardContent>
     </Card>
   );

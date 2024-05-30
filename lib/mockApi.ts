@@ -31,7 +31,6 @@ const saveReservations = (reservations: Reservation[]) => {
 
 export const getProviders = (): Promise<Provider[]> => {
   return new Promise((resolve) => {
-    console.log('Fetching providers...');
     setTimeout(() => {
       providers.forEach(provider => {
         let schedule = getStoredSchedules(provider.id);
