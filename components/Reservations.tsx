@@ -38,6 +38,7 @@ const Reservations: React.FC = () => {
     });
   };
 
+  const sortedReservations = reservations.sort((a, b) => moment(`${a.date} ${a.startTime}`, 'YYYY-MM-DD HH:mm').isBefore(moment(`${b.date} ${b.startTime}`, 'YYYY-MM-DD HH:mm')) ? -1 : 1);
   return (
     <Card>
       <CardHeader>
@@ -60,8 +61,8 @@ const Reservations: React.FC = () => {
                 <TableCell colSpan={5}>Loading...</TableCell>
               </TableRow>
             )}
-            {reservations.map((reservation: Reservation) => (
-              <TableRow key={reservation.id}>
+            {sortedReservations.map((reservation: Reservation) => (
+              <TableRow key={reservation.id} className={!reservation.confirmed && !reservation.blockedUntil ? 'bg-gray-200 italic' : ''}>
                 <TableCell>{moment(reservation.date).format('LL')}</TableCell>
                 <TableCell>{moment(`${reservation.date} ${reservation.startTime}`, 'YYYY-MM-DD HH:mm').format('h:mm A')} - {moment(`${reservation.date} ${reservation.endTime}`, 'YYYY-MM-DD HH:mm').format('h:mm A')}</TableCell>
                 <TableCell>{providers.find(provider => provider.id === reservation.providerId)?.name}</TableCell>
