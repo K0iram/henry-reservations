@@ -2,6 +2,11 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 
+/**
+ * Home is the main component that renders the home page.
+ * 
+ * The component uses the Card and Button components to display a welcome message and a set of links to navigate to the different sections.
+ */
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center p-20">

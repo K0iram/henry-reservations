@@ -2,6 +2,13 @@ import moment from 'moment';
 import { Provider, Reservation, Schedule } from './types';
 import { getStoredSchedules, generateDefaultSchedule, saveSchedules } from './utils';
 
+/**
+ * mockApi is a module that provides mock functions for interacting with the backend.
+ * 
+ * The functions are used to simulate the behavior of the backend.
+ */
+
+// Provider Functions
 export const providers: Provider[] = [
   {
     id: '1',
@@ -20,15 +27,6 @@ export const providers: Provider[] = [
   },
 ];
 
-const getStoredReservations = (): Reservation[] => {
-  const storedReservations = localStorage.getItem('reservations');
-  return storedReservations ? JSON.parse(storedReservations) : [];
-};
-
-const saveReservations = (reservations: Reservation[]) => {
-  localStorage.setItem('reservations', JSON.stringify(reservations));
-};
-
 export const getProviders = (): Promise<Provider[]> => {
   return new Promise((resolve) => {
     setTimeout(() => {
@@ -45,19 +43,30 @@ export const getProviders = (): Promise<Provider[]> => {
   });
 };
 
-export const getReservations = (): Promise<Reservation[]> => {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(getStoredReservations()), 1000);
-  });
-};
-
 export const updateProviderSchedule = (providerId: string, schedule: Schedule[]): Promise<void> => {
   return new Promise((resolve) => {
     const provider = providers.find((p) => p.id === providerId);
     if (provider) {
       provider.schedule = schedule;
+      saveSchedules(providerId, schedule); // Update local storage
       setTimeout(() => resolve(), 1000);
     }
+  });
+};
+
+// Reservation Functions
+const getStoredReservations = (): Reservation[] => {
+  const storedReservations = localStorage.getItem('reservations');
+  return storedReservations ? JSON.parse(storedReservations) : [];
+};
+
+const saveReservations = (reservations: Reservation[]) => {
+  localStorage.setItem('reservations', JSON.stringify(reservations));
+};
+
+export const getReservations = (): Promise<Reservation[]> => {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(getStoredReservations()), 1000);
   });
 };
 

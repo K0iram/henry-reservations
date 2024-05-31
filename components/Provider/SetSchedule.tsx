@@ -1,22 +1,28 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { getProviders, providers, updateProviderSchedule } from '../lib/mockApi';
-import { Provider, Schedule } from '../lib/types';
-import { getNextWeekdays } from '../lib/utils';
-import { Card, CardHeader, CardContent } from './ui/card';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger } from './ui/select';
+import { getProviders, providers, updateProviderSchedule } from '../../lib/mockApi';
+import { Provider, Schedule } from '../../lib/types';
+import { getNextWeekdays } from '../../lib/utils';
+import { Card, CardHeader, CardContent } from '../ui/card';
+import { useToast } from '../ui/use-toast';
+import ScheduleProviderSelect from './ScheduleProviderSelect';
+import ScheduleForm from './ScheduleForm';
 import moment from 'moment';
-import { useToast } from './ui/use-toast';
 
+/**
+ * SetSchedule is a component that renders a form for setting the schedule for a provider.
+ * 
+ * The component uses the ScheduleProviderSelect and ScheduleForm components to create
+ * a form for setting the schedule for a provider. The schedule is stored in local storage
+ * and updated whenever the schedule is changed.
+ */
 const SetSchedule: React.FC = () => {
   const [schedule, setSchedule] = useState<Schedule[]>([]);
   const [selectedProvider, setSelectedProvider] = useState<Provider | undefined>(undefined);
   const { toast } = useToast();
 
   useEffect(() => {
-    getProviders() // fetch providers for default schedule
+    getProviders(); // fetch providers for default schedule
     if (selectedProvider) {
       const savedSchedule = localStorage.getItem(`schedule-${selectedProvider.id}`);
       if (savedSchedule && savedSchedule.length > 0) {
@@ -57,7 +63,7 @@ const SetSchedule: React.FC = () => {
         toast({
           title: "Success!",
           description: `Schedule updated for ${selectedProvider.name}`,
-        })
+        });
       });
     }
   };
@@ -66,29 +72,19 @@ const SetSchedule: React.FC = () => {
     <Card>
       <CardHeader>
         <h2>Set Schedule for</h2>
-        <Select onValueChange={(value) => setSelectedProvider(providers.find(p => p.id === value))} value={selectedProvider?.id}>
-          <SelectTrigger>
-            <span>{selectedProvider ? selectedProvider.name : 'Select Provider'}</span>
-          </SelectTrigger>
-          <SelectContent>
-            {providers.map((provider) => (
-              <SelectItem key={provider.id} value={provider.id}>
-                {provider.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <ScheduleProviderSelect
+          providers={providers}
+          selectedProvider={selectedProvider}
+          onProviderChange={setSelectedProvider}
+        />
       </CardHeader>
       <CardContent>
-        {schedule.map((slot, index) => (
-          <div key={index} className="flex gap-2 mb-2">
-            <Input type="date" value={slot.date} readOnly />
-            <Input type="time" value={slot.startTime} onChange={(e) => handleScheduleChange(index, 'startTime', e.target.value)} />
-            <Input type="time" value={slot.endTime} onChange={(e) => handleScheduleChange(index, 'endTime', e.target.value)} />
-            <Button onClick={() => handleClearTime(index)}>Clear</Button>
-          </div>
-        ))}
-        <Button onClick={handleSubmit}>Update Schedule</Button>
+        <ScheduleForm
+          schedule={schedule}
+          onScheduleChange={handleScheduleChange}
+          onClearTime={handleClearTime}
+          onSubmit={handleSubmit}
+        />
       </CardContent>
     </Card>
   );

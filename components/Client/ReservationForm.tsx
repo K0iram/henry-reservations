@@ -1,15 +1,44 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import moment from 'moment';
-import { getProviders, createReservation, unblockExpiredReservations } from '../lib/mockApi';
-import { Provider, Reservation } from '../lib/types';
-import { Card, CardContent, CardHeader } from './ui/card';
-import { Select, SelectTrigger, SelectContent, SelectItem } from './ui/select';
-import { Input } from './ui/input';
-import { Button } from './ui/button';
+import moment, { Moment } from 'moment';
+import { getProviders, createReservation, unblockExpiredReservations } from '../../lib/mockApi';
+import { Provider, Reservation } from '../../lib/types';
+import { Card, CardContent, CardHeader } from '../ui/card';
+import { Button } from '../ui/button';
 import { useToast } from "@/components/ui/use-toast"
-import { useReservations } from '../lib/context/ReservationsContext';
+import { useReservations } from '../../lib/context/ReservationsContext';
+import ProviderSelect from './ProviderSelect';
+import AvailableDates from './AvailableDates';
+import AvailableTimes from './AvailableTimes';
+
+/**
+ * ReservationForm is a component that allows users to create reservations with providers.
+ * 
+ * State:
+ * - providers: An array of Provider objects fetched from the API.
+ * - selectedProvider: The ID of the currently selected provider.
+ * - selectedDate: The currently selected date in 'YYYY-MM-DD' format.
+ * - selectedTime: The currently selected time in 'HH:mm' format.
+ * 
+ * Context:
+ * - reservations: An array of Reservation objects from the ReservationsContext.
+ * - addReservation: A function to add a new reservation to the context.
+ * - toast: A function to display toast notifications.
+ * 
+ * Effects:
+ * - Fetches providers from the API on component mount.
+ * - Sets an interval to unblock expired reservations every minute.
+ * 
+ * Methods:
+ * - handleReservation: Creates a new reservation and adds it to the context if the selected time is within the provider's working hours and not overlapping with existing reservations.
+ * - clearForm: Clears the form fields after a reservation is made.
+ * 
+ * Components:
+ * - ProviderSelect: A dropdown to select a provider.
+ * - AvailableDates: A list of available dates for the selected provider.
+ * - AvailableTimes: A list of available time slots for the selected provider and date.
+ */
 
 const ReservationForm: React.FC = () => {
   const [providers, setProviders] = useState<Provider[]>([]);
@@ -25,10 +54,10 @@ const ReservationForm: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const handleReservation = () => {
-    const startTime = moment(`${selectedDate} ${selectedTime}`, 'YYYY-MM-DD h:mm A');
-    const endTime = startTime.clone().add(15, 'minutes');
-    const blockedUntil = moment().add(30, 'minutes');
+  const handleReservation = (): void => {
+    const startTime: Moment = moment(`${selectedDate} ${selectedTime}`, 'YYYY-MM-DD h:mm A');
+    const endTime: Moment = startTime.clone().add(15, 'minutes');
+    const blockedUntil: Moment = moment().add(30, 'minutes');
 
     const reservation: Reservation = {
       id: `${Date.now()}`,
@@ -41,7 +70,7 @@ const ReservationForm: React.FC = () => {
       blockedUntil: blockedUntil.toDate(), // Block for 30 minutes
     };
 
-    const clearForm = () => {
+    const clearForm = (): void => {
       setSelectedProvider('');
       setSelectedDate('');
       setSelectedTime('');
@@ -52,8 +81,8 @@ const ReservationForm: React.FC = () => {
     if (provider) {
       const schedule = provider.schedule.find((s) => s.date === selectedDate);
       if (schedule) {
-        const scheduleStartTime = moment(`${selectedDate} ${schedule.startTime}`, 'YYYY-MM-DD HH:mm');
-        const scheduleEndTime = moment(`${selectedDate} ${schedule.endTime}`, 'YYYY-MM-DD HH:mm');
+        const scheduleStartTime: Moment = moment(`${selectedDate} ${schedule.startTime}`, 'YYYY-MM-DD HH:mm');
+        const scheduleEndTime: Moment = moment(`${selectedDate} ${schedule.endTime}`, 'YYYY-MM-DD HH:mm');
 
         if (startTime.isBetween(scheduleStartTime, scheduleEndTime, undefined, '[)') && endTime.isBefore(scheduleEndTime)) {
           const isOverlapping = reservations.some((res) => 
@@ -94,92 +123,23 @@ const ReservationForm: React.FC = () => {
     }
   };
 
-  const getProviderHours = () => {
-    const provider = providers.find((p) => p.id === selectedProvider);
-    if (provider) {
-      const schedule = provider.schedule.find((s) => s.date === selectedDate);
-      if (schedule) {
-        const scheduleStartTime = moment(`${selectedDate} ${schedule.startTime}`);
-        const scheduleEndTime = moment(`${selectedDate} ${schedule.endTime}`);
-        const timeSlots = [];
-        let currentTime = scheduleStartTime;
-
-        while (currentTime.isBefore(scheduleEndTime)) {
-          const isBooked = reservations.some((res) => 
-            res.providerId === selectedProvider &&
-            res.date === selectedDate &&
-            res.confirmed && // Only confirmed reservations
-            moment(`${selectedDate} ${res.startTime}`).isSame(currentTime)
-          );
-
-          if (!isBooked) {
-            const timeString = currentTime.format('h:mm A');
-            timeSlots.push(
-              <Button 
-                key={timeString} 
-                onClick={() => setSelectedTime(timeString)} 
-                className="m-1"
-                variant={selectedTime === timeString ? 'default' : 'outline'}
-              >
-                {timeString}
-              </Button>
-            );
-          }
-
-          currentTime = currentTime.add(15, 'minutes');
-        }
-
-        return timeSlots;
-      }
-    }
-    return null;
-  };
-
-  const getAvailableDates = () => {
-    const provider = providers.find((p) => p.id === selectedProvider);
-    if (provider) {
-      return provider.schedule.map((s) => (
-        <Button 
-          key={s.date} 
-          onClick={() => setSelectedDate(s.date)} 
-          className="m-1"
-          variant={selectedDate === s.date ? 'default' : 'outline'}
-        >
-          {moment(s.date).format('LL')}
-        </Button>
-      ));
-    }
-    return null;
-  };
-
   return (
-    <Card className="p-4">
+    <Card>
       <CardHeader>
         <h2 className="scroll-m-20 border-b pb-2 text-xl font-semibold tracking-tight first:mt-0">Add New Reservation</h2>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        <Select onValueChange={setSelectedProvider} value={selectedProvider}>
-          <SelectTrigger>
-            <span>{selectedProvider ? providers.find(p => p.id === selectedProvider)?.name : 'Select Provider'}</span>
-          </SelectTrigger>
-          <SelectContent>
-            {providers.map((provider) => (
-              <SelectItem key={provider.id} value={provider.id}>
-                {provider.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <ProviderSelect providers={providers} selectedProvider={selectedProvider} setSelectedProvider={setSelectedProvider} />
         <h4 className="scroll-m-20 text-md font-semibold tracking-tight">Available Dates</h4>
         <Card className="p-2 overflow-y-auto max-h-20">
           <CardContent className="flex flex-wrap gap-2 overflow-y-auto max-h-12">
-            {getAvailableDates()}
+            <AvailableDates providers={providers} selectedProvider={selectedProvider} selectedDate={selectedDate} setSelectedDate={setSelectedDate} />
           </CardContent>
         </Card>
         <h4 className="scroll-m-20 text-md font-semibold tracking-tight">Available Times</h4>
         <Card className="p-2 overflow-y-auto max-h-20">
           <CardContent className="flex flex-wrap gap-2 overflow-y-auto max-h-12">
-            {getProviderHours()}
+            <AvailableTimes providers={providers} selectedProvider={selectedProvider} selectedDate={selectedDate} selectedTime={selectedTime} setSelectedTime={setSelectedTime} reservations={reservations} />
           </CardContent>
         </Card>
         {selectedProvider && selectedDate && selectedTime && (

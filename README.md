@@ -67,7 +67,30 @@ To make this app ready for production, consider the following improvements:
 4. **Error Handling**: Improve error handling throughout the app to provide better feedback to users and handle edge cases gracefully.
 5. **Testing**: Implement comprehensive unit and integration tests to ensure the app's reliability and stability.
 
+## Main Files
+
+### `lib/mockApi.ts`
+Contains the mock API functions for providers and reservations.
+
+### `pages/index.tsx`
+The main entry point for the application, rendering the home page.
+
+### `pages/providers.tsx`
+Handles the provider-related functionalities, including setting schedules.
+
+### `pages/clients.tsx`
+Handles the client-related functionalities, including making and viewing reservations.
+
+### `components/ProviderSchedule.tsx`
+Component for displaying and updating a provider's schedule.
+
+### `components/ReservationForm.tsx`
+Component for creating a new reservation.
+
+### `components/ReservationList.tsx`
+Component for displaying a list of reservations.
+
 ## Notes
-- The app assumes that the 'client' is signed in
-- The app allows any provider to update their schedule
-- The app does not have any tests
+- The app assumes that the 'client' is signed in.
+- The app allows any provider to update their schedule.
+- The app does not have any tests.

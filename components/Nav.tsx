@@ -8,7 +8,20 @@ import henryIcon from "@/public/henry_icon.png"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { clearData } from "@/lib/utils"
 
-export default function Nav() {
+/**
+ * This is the navigation component for the Henry Reservations application.
+ * It includes links to the home page, client reservations, and provider scheduler.
+ * It also provides a dropdown menu for user actions such as resetting all data.
+ *
+ * Components:
+ * - Link: Used for navigation between different pages.
+ * - Button: A reusable button component.
+ * - Avatar: Displays the user's avatar image.
+ * - DropdownMenu: A dropdown menu for user actions.
+ * - clearData: A utility function to reset all data for user testing
+ */
+
+const Nav: React.FC = () => {
   return (
     <nav className="fixed inset-x-0 top-0 z-50 bg-white shadow-sm dark:bg-gray-950/90">
       <div className="w-full max-w-7xl mx-auto px-4">
@@ -45,3 +58,5 @@ export default function Nav() {
     </nav>
   )
 }
+
+export default Nav;
