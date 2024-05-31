@@ -1,9 +1,9 @@
 import React from 'react';
 import moment from 'moment';
 import { Button } from '../ui/button';
-import { Reservation } from '@/lib/types';
-import { providers } from '../../lib/mockApi';
 import { TableCell, TableRow } from '../ui/table';
+import { Reservation } from '@/lib/types';
+import { providers } from '@/lib/mockApi';
 
 interface ReservationRowProps {
   reservation: Reservation;

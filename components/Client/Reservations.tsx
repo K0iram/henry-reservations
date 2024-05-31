@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect } from 'react';
-import { confirmReservation, unblockExpiredReservations, cancelReservation } from '../../lib/mockApi';
-import { useReservations } from '../../lib/context/ReservationsContext';
+import { confirmReservation, unblockExpiredReservations, cancelReservation } from '@/lib/mockApi';
+import { useReservations } from '@/lib/context/ReservationsContext';
 import moment from 'moment';
 import { Card, CardContent, CardHeader } from '../ui/card';
 import { useToast } from '@/components/ui/use-toast';

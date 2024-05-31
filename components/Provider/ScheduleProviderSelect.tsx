@@ -1,6 +1,6 @@
 import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '../ui/select';
-import { Provider } from '../../lib/types';
+import { Provider } from '@/lib/types';
 
 interface ScheduleProviderSelectProps {
   providers: Provider[];

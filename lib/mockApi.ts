@@ -13,17 +13,17 @@ export const providers: Provider[] = [
   {
     id: '1',
     name: 'Dr. Henry',
-    schedule: getStoredSchedules('1').length ? getStoredSchedules('1') : generateDefaultSchedule(),
+    schedule: getStoredSchedules('1')?.length ? getStoredSchedules('1') : generateDefaultSchedule(),
   },
   {
     id: '2',
     name: 'Dr. Smith',
-    schedule: getStoredSchedules('2').length ? getStoredSchedules('2') : generateDefaultSchedule(),
+    schedule: getStoredSchedules('2')?.length ? getStoredSchedules('2') : generateDefaultSchedule(),
   },
   {
     id: '3',
     name: 'Dr. Johnson',
-    schedule: getStoredSchedules('3').length ? getStoredSchedules('3') : generateDefaultSchedule(),
+    schedule: getStoredSchedules('3')?.length ? getStoredSchedules('3') : generateDefaultSchedule(),
   },
 ];
 
@@ -48,7 +48,7 @@ export const updateProviderSchedule = (providerId: string, schedule: Schedule[])
     const provider = providers.find((p) => p.id === providerId);
     if (provider) {
       provider.schedule = schedule;
-      saveSchedules(providerId, schedule); // Update local storage
+      saveSchedules(providerId, schedule);
       setTimeout(() => resolve(), 1000);
     }
   });
@@ -78,7 +78,7 @@ export const createReservation = (reservation: Reservation): Promise<void> => {
     const isOverlapping = reservations.some((res) => 
       res.providerId === reservation.providerId &&
       res.date === reservation.date &&
-      res.confirmed && // Only consider confirmed reservations
+      res.confirmed &&
       (
         (moment(`${reservation.date} ${res.startTime}`, 'YYYY-MM-DD HH:mm').isBefore(moment(`${reservation.date} ${reservation.endTime}`, 'YYYY-MM-DD HH:mm')) &&
         moment(`${reservation.date} ${res.endTime}`, 'YYYY-MM-DD HH:mm').isAfter(moment(`${reservation.date} ${reservation.startTime}`, 'YYYY-MM-DD HH:mm')))

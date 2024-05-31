@@ -14,10 +14,10 @@ export function cn(...inputs: ClassValue[]) {
  */
 export const getNextWeekdays = (count: number): string[] => {
   const weekdays: string[] = [];
-  let day = moment().add(1, 'day'); // Start from the next day
+  let day = moment().add(1, 'day');
 
   while (weekdays.length < count) {
-    if (day.isoWeekday() < 6) { // Monday to Friday are considered weekdays
+    if (day.isoWeekday() < 6) {
       weekdays.push(day.format('YYYY-MM-DD'));
     }
     day = day.add(1, 'day');
@@ -56,11 +56,11 @@ export const generateDefaultSchedule = (): Schedule[] => {
   const startOfDay = moment().startOf('day').add(9, 'hours'); // 9am
   const endOfDay = moment().startOf('day').add(17, 'hours'); // 5pm
 
-  let day = moment().add(1, 'day'); // Start from the next day
+  let day = moment().add(1, 'day'); 
   let weekdaysAdded = 0;
 
   while (weekdaysAdded < 5) {
-    if (day.isoWeekday() <= 5) { // Only weekdays
+    if (day.isoWeekday() <= 5) {
       schedule.push({
         date: day.format('YYYY-MM-DD'),
         startTime: startOfDay.format('HH:mm'),

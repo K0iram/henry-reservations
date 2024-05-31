@@ -1,5 +1,5 @@
 import React from 'react';
-import { Provider } from '../../lib/types';
+import { Provider } from '@/lib/types';
 import { Button } from '../ui/button';
 import moment from 'moment';
 

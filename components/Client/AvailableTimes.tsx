@@ -1,6 +1,6 @@
 import React from 'react';
 import moment from 'moment';
-import { Provider, Reservation } from '../../lib/types';
+import { Provider, Reservation } from '@/lib/types';
 import { Button } from '../ui/button';
 
 interface AvailableTimesProps {

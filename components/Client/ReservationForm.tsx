@@ -7,7 +7,7 @@ import { Provider, Reservation } from '../../lib/types';
 import { Card, CardContent, CardHeader } from '../ui/card';
 import { Button } from '../ui/button';
 import { useToast } from "@/components/ui/use-toast"
-import { useReservations } from '../../lib/context/ReservationsContext';
+import { useReservations } from '@/lib/context/ReservationsContext';
 import ProviderSelect from './ProviderSelect';
 import AvailableDates from './AvailableDates';
 import AvailableTimes from './AvailableTimes';
@@ -62,12 +62,12 @@ const ReservationForm: React.FC = () => {
     const reservation: Reservation = {
       id: `${Date.now()}`,
       providerId: selectedProvider,
-      clientId: '1', // Assume client ID is 1 as 'logged in user'
+      clientId: '1', // Hard coded to 1 for now
       date: selectedDate,
       startTime: startTime.format('HH:mm'),
       endTime: endTime.format('HH:mm'),
       confirmed: false,
-      blockedUntil: blockedUntil.toDate(), // Block for 30 minutes
+      blockedUntil: blockedUntil.toDate(),
     };
 
     const clearForm = (): void => {
@@ -88,7 +88,7 @@ const ReservationForm: React.FC = () => {
           const isOverlapping = reservations.some((res) => 
             res.providerId === selectedProvider &&
             res.date === selectedDate &&
-            res.confirmed && // Only confirmed reservations
+            res.confirmed &&
             (
               moment(`${selectedDate} ${res.startTime}`, 'YYYY-MM-DD HH:mm').isBefore(endTime) &&
               moment(`${selectedDate} ${res.endTime}`, 'YYYY-MM-DD HH:mm').isAfter(startTime)
@@ -100,7 +100,7 @@ const ReservationForm: React.FC = () => {
                 title: "Success!",
                 description: "Reservation created and blocked for 30 minutes. Please confirm within 30 minutes.",
               });
-              addReservation(reservation); // Add reservation to context
+              addReservation(reservation);
               clearForm();
             });
           } else {

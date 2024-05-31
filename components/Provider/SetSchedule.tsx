@@ -1,8 +1,8 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { getProviders, providers, updateProviderSchedule } from '../../lib/mockApi';
-import { Provider, Schedule } from '../../lib/types';
-import { getNextWeekdays } from '../../lib/utils';
+import { getProviders, providers, updateProviderSchedule } from '@/lib/mockApi';
+import { Provider, Schedule } from '@/lib/types';
+import { getNextWeekdays } from '@/lib/utils';
 import { Card, CardHeader, CardContent } from '../ui/card';
 import { useToast } from '../ui/use-toast';
 import ScheduleProviderSelect from './ScheduleProviderSelect';

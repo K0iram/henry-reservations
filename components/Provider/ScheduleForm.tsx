@@ -1,5 +1,5 @@
 import React from 'react';
-import { Schedule } from '../../lib/types';
+import { Schedule } from '@/lib/types';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 
