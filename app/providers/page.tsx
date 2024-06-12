@@ -1,4 +1,4 @@
-import SetSchedule from "@/components/Provider/SetSchedule";
+import SetSchedule from "@/components/provider/SetSchedule";
 
 /**
  * This is the main provider page component for the Henry Reservations application.

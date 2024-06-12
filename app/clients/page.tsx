@@ -1,5 +1,5 @@
-import ReservationForm from "@/components/Client/ReservationForm";
-import Reservations from "@/components/Client/Reservations";
+import ReservationForm from "@/components/client/ReservationForm";
+import Reservations from "@/components/client/Reservations";
 
 /**
  * This is the main client component for the Henry Reservations application.
